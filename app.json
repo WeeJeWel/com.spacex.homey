@@ -1,0 +1,61 @@
+{
+    "id": "com.spacex.homey",
+    "sdk": 2,
+    "name": {
+        "en": "SpaceX"
+    },
+    "description": {
+        "en": "Notifies you when a SpaceX live broadcast starts."
+    },
+    "images": {
+		"large": "/assets/images/large.png",
+		"small": "/assets/images/small.png"
+    },
+    "category": "internet",
+    "version": "1.0.0",
+    "compatibility": ">=1.5.0",
+    "author": {
+        "name": "Emile Nijssen",
+        "email": "emile@athom.nl"
+    },
+    "flow": {
+	    "triggers": [
+		    {
+			    "id": "upcoming",
+			    "title": {
+				    "en": "A livestream is about to start"
+			    },
+			    "tokens": [
+				    {
+					    "name": "url",
+					    "type": "string",
+					    "title": {
+						    "en": "YouTube URL"
+					    },
+					    "example": {
+						    "en": "https://www.youtube.com/tv?v=9M6Zvi-fFv4"
+					    }
+				    }
+			    ]
+		    },
+		    {
+			    "id": "live",
+			    "title": {
+				    "en": "A livestream has started"
+			    },
+			    "tokens": [
+				    {
+					    "name": "url",
+					    "type": "string",
+					    "title": {
+						    "en": "YouTube URL"
+					    },
+					    "example": {
+						    "en": "https://www.youtube.com/tv?v=9M6Zvi-fFv4"
+					    }
+				    }
+			    ]
+		    }
+	    ]
+    }
+}
