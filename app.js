@@ -5,7 +5,7 @@ const https = require('https');
 const Homey = require('homey');
 
 const POLL_URL = 'https://us-central1-firebase-spacex.cloudfunctions.net/getVideos';
-const POLL_INTERVAL = 20000;
+const POLL_INTERVAL = 1000 * 60 * 2.5; // 2.5 min
 
 class SpaceXApp extends Homey.App {
 
