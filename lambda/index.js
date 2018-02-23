@@ -13,7 +13,7 @@ exports.handler = (event, context, callback) => {
 			videosObj[ type ] = videos;
 			
 			if( videos.length > 0 ) {
-				return fetch('https://webhooks.athom.com/webhook/5a9046708a645a820cc3969a/', {
+				return fetch('https://webhooks.athom.com/webhook/' + process.env.WEBHOOK_ID + '/', {
 					method: 'POST',
 					body: JSON.stringify({
 						type: type,
