@@ -1,1 +1,3 @@
 env.json
+/lambda/node_modules
+.lambda

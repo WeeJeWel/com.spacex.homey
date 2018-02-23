@@ -4,15 +4,18 @@ const https = require('https');
 
 const Homey = require('homey');
 
-const POLL_URL = 'https://us-central1-firebase-spacex.cloudfunctions.net/getVideos';
-const POLL_INTERVAL = 1000 * 60 * 2.5; // 2.5 min
-
 class SpaceXApp extends Homey.App {
 
 	onInit() {
 
 		this.log('SpaceXApp is running...');
 		
+		// register webhook
+		this._webhook = new Homey.CloudWebhook( Homey.env.WEBHOOK_ID, Homey.env.WEBHOOK_SECRET, {});
+		this._webhook.register().catch( this.error );
+		this._webhook.on('message', this._onWebhookMessage.bind(this));
+		
+		// register flow
 		this._flowTriggers = {
 			upcoming: new Homey.FlowCardTrigger('upcoming'),
 			live: new Homey.FlowCardTrigger('live'),
@@ -21,61 +24,24 @@ class SpaceXApp extends Homey.App {
 		this._flowTriggers.upcoming.register();
 		this._flowTriggers.live.register();
 		
+		// cache
 		this._videos = {
 			upcoming: [],
 			live: [],
 		}
-			
-		this._poll = this._poll.bind(this);
-		this._pollInterval = setInterval(this._poll, POLL_INTERVAL);
-		this._poll();
 
 	}
 	
-	_poll() {
-		this.log('_poll()');
+	_onWebhookMessage( args ) {
+		console.log('_onWebhookMessage', args)
 		
-		https.get( POLL_URL, res => {
-			const { statusCode } = res;
-			const contentType = res.headers['content-type'];
-			
-			let error;
-			if (statusCode !== 200) {
-				error = new Error('Request Failed.\n' +
-			                  `Status Code: ${statusCode}`);
-			} else if (!/^application\/json/.test(contentType)) {
-				error = new Error('Invalid content-type.\n' +
-			                  `Expected application/json but received ${contentType}`);
-			}
-			
-			if (error) {
-				console.error(error.message);
-				res.resume();
-				return;
-			}
-			
-			res.setEncoding('utf8');
-			let rawData = '';
-			res.on('data', (chunk) => { rawData += chunk; });
-			res.on('end', () => {
-				try {
-					const parsedData = JSON.parse(rawData);
-					this._processPollResult( 'upcoming', parsedData.upcoming );
-					this._processPollResult( 'live', parsedData.live );
-				} catch (e) {
-					console.error(e.message);
-				}
-			});
-			
-		}).on('error', this.error);
-	}
-	
-	_processPollResult( type, videos ) {
+		const type = args.body.type;
+		const videos = args.body.videos;		
+		
 		if( !Array.isArray(videos) )
 			return this.error('Invalid videos, expected Array');
 						
-		videos.forEach( video => {
-			const videoId = video.youtubeId;
+		videos.forEach( videoId => {
 			if( this._videos[type].indexOf(videoId) === -1 ) {
 				this._videos[type].push(videoId);
 				
